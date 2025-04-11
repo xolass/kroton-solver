@@ -93,12 +93,6 @@ for (let questionNode of questionList) {
   nQuestion++;
 }
 
-await page.locator("#button-btn-finish-quiz").click();
-
-await sleep(1000);
-
-await page.locator("#button-modal-finish").click();
-
 console.log("Deu certo");
 
 await sleep(10000);
