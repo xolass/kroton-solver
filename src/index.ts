@@ -1,7 +1,8 @@
 import { sleep } from "bun";
 import puppeteer from "puppeteer";
-import { callGemini } from "./ia";
-import { getUserInput } from "./userInput";
+import { askAIs } from "./aiProvider/ai";
+import { areAnswersSame } from "./checkAnswer";
+import { getUserInput, printUnagreedAnswer } from "./userIO";
 
 const { RA, localizador } = getUserInput();
 
@@ -78,19 +79,31 @@ for (let questionNode of questionList) {
   if (!answerForThisQuestion)
     throw new Error(`No answer Node for question ${nQuestion}`);
 
-  const answerId = await callGemini(
+  const { gptAnswer, geminiAnswer } = await askAIs(
     nQuestion,
     questionNode,
     answerForThisQuestion
   );
+
+  nQuestion++;
+
+  const answersMatch = areAnswersSame([gptAnswer, geminiAnswer]);
+
+  if (!answersMatch) {
+    printUnagreedAnswer(questionNode, answerForThisQuestion, {
+      gptAnswer,
+      geminiAnswer,
+    });
+    continue;
+  }
+
+  const answerId = gptAnswer;
 
   await page.locator(`#${answerId}`).click();
 
   if (nQuestion !== questionList.length) {
     await page.locator("#button-next-question").click();
   }
-
-  nQuestion++;
 }
 
 console.log("Deu certo");

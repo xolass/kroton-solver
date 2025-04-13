@@ -1,4 +1,4 @@
-# ai-provas
+# kroton-solver
 
 To install dependencies:
 
